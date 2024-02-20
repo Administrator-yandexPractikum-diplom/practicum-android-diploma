@@ -8,9 +8,9 @@ class App: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        startKoin {
-            androidContext(this@App)
-            // Добавить di коментарий удалить
-        }
+//        startKoin {
+//            androidContext(this@App)
+//            // Добавить di коментарий удалить
+//        }
     }
 }

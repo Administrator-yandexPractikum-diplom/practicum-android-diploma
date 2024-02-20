@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("ru.practicum.android.diploma.plugins.developproperties")
+    id("kotlin-kapt")
 }
 
 android {
@@ -59,7 +60,7 @@ dependencies {
 
     // Koin
     implementation(libs.koin)
-
+//    implementation("io.insert-koin:koin-android:3.3.0")
 
     // Room
     implementation(libs.room)
