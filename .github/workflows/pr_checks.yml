@@ -70,7 +70,7 @@ jobs:
 
             -   name: Setup environment
                 env:
-                    GH_HH_ACCESS_TOKEN: ${{ secrets.GH_HH_ACCESS_TOKEN }}
+                    HDMM4CLMLGAIA9QDBR6TU1FDBNGMIP8D2EG85DSHS97CFORQ4CB5L0DPDJ3GIEP6: ${{ secrets.HDMM4CLMLGAIA9QDBR6TU1FDBNGMIP8D2EG85DSHS97CFORQ4CB5L0DPDJ3GIEP6 }}
                 run: |
                     sh ci/setup_env.sh
 
