@@ -11,7 +11,7 @@ object VacancyConverter {
             area = area.name,
             employer = employer.name,
             salary = "от ${salary?.from} до ${salary?.to}",
-            employerImgUrl = employer.logoUrls?.original ?: ""
+            employerImgUrl = employer.logoUrls?.art240
         )
     }
 }

@@ -10,5 +10,5 @@ data class VacanciesSearchResponse(
     val page: Int, // Номер страницы
     val pages: Int, // Всего страниц
     @SerializedName("per_page")
-    val perPage: Int
+    val perPage: Int = 20 // Количество результатов на 1 страницу
 ) : Response()

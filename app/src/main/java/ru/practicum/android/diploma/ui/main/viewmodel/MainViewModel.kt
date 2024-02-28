@@ -45,6 +45,7 @@ class MainViewModel(
 
     private fun processResult(foundVacancy: List<Vacancy>?, errorMessage: Int?) {
         val vacancy = mutableListOf<Vacancy>()
+        Log.d("StateSearch", "Проверим что приходит в url = ${foundVacancy?.map { it.employerImgUrl }}")
 
         if (foundVacancy != null) {
             vacancy.addAll(foundVacancy)
