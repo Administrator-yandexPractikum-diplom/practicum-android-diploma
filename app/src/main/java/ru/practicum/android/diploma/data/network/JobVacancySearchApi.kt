@@ -5,8 +5,6 @@ import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 import ru.practicum.android.diploma.BuildConfig
-import ru.practicum.android.diploma.data.vacancydetail.dto.DetailResponse
-import ru.practicum.android.diploma.data.vacancylist.dto.VacanciesRemote
 import ru.practicum.android.diploma.data.vacancylist.dto.VacanciesSearchResponse
 
 interface JobVacancySearchApi {
@@ -14,12 +12,12 @@ interface JobVacancySearchApi {
     // Запрос списка вакансий
     @Headers(HEADER_AUTH, HEADER_USER)
     @GET("/vacancies")
-    suspend fun getVacancyList(@QueryMap options: Map<String, String>): VacanciesRemote
+    suspend fun getFullListVacancy(@QueryMap response: Map<String, String>): VacanciesSearchResponse
 
     // Запрос детальной информации о вакансии
     @Headers(HEADER_AUTH, HEADER_USER)
     @GET("/vacancies/{vacancy_id}")
-    suspend fun getVacancyDetail(@Path("vacancy_id") id: String): DetailResponse
+    suspend fun getVacancyDetail(@Path("vacancy_id") id: String): VacanciesSearchResponse
 
     companion object {
         const val HEADER_AUTH = "Authorization: Bearer ${BuildConfig.HH_ACCESS_TOKEN}"
