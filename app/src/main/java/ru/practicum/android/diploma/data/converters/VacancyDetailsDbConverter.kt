@@ -49,7 +49,7 @@ object VacancyDetailsDbConverter {
             schedule = schedule?.name,
             contactName = contacts?.name,
             contactEmail = contacts?.email,
-            phones = employer.logoUrls?.original,
+            phones = type.name,
             contactComment = contacts?.name,
             logoUrl = employer.logoUrls?.original,
             logoUrl90 = employer.logoUrls?.art90,
