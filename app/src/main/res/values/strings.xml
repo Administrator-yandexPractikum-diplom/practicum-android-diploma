@@ -10,8 +10,23 @@
     <string name="bottomFavorites">Избранное</string>
     <string name="bottomSquad">Команда</string>
     <string name="squad">Команда</string>
-    <string name="no_list_vacancies"><![CDATA[no_list_vacancies\">Не удалось получить \\n список вакансий]]></string>
+    <string name="no_list_vacancies">Не удалось получить \n список вакансий</string>
     <string name="no_internet">Нет интернета</string>
     <string name="no_vacancy">Таких вакансий нет</string>
+    <string name="vacancy">Вакансия</string>
+    <string name="experience">Требуемый опыт</string>
+    <string name="description">Описание вакансии</string>
+    <string name="key_skills">Ключевые навыки</string>
+    <string name="contacts">Контакты</string>
+    <string name="contact_name">Контактное лицо</string>
+    <string name="email">E-mail</string>
+    <string name="phone">Телефон</string>
+    <string name="comment">Комментарий</string>
+    <string name="similar_vacancy">Похожие вакансии</string>
+    <string name="comma">, \u0020</string>
+    <string name="server_error">Ошибка сервера</string>
     <string name="search_request">Введите запрос</string>
+
+    <string name="fav_empty_list">Список пуст</string>
+    <string name="fav_nothing_found">Не удалось получить \nсписок вакансий</string>
 </resources>
