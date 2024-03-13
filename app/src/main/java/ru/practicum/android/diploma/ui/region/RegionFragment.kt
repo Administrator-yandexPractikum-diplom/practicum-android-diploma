@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -108,8 +109,8 @@ class RegionFragment : Fragment() {
                     adapter.notifyDataSetChanged()
                 }
 
-                is RegionState.Empty -> ""
-                is RegionState.Error -> ""
+                is RegionState.Empty -> showEmpty(getString(state.message))
+                is RegionState.Error -> showError(getString(state.errorMessage))
                 is RegionState.Loading -> showLoading()
             }
         }
@@ -121,13 +122,27 @@ class RegionFragment : Fragment() {
     }
 
     private fun showContent() {
-        binding.regionRecycler.visibility = View.VISIBLE
+        binding.flrecyclerContainer.visibility = View.VISIBLE
         binding.regionProgressBar.visibility = View.GONE
     }
 
     private fun showLoading() {
-        binding.regionRecycler.visibility = View.GONE
+        binding.flrecyclerContainer.visibility = View.GONE
         binding.regionProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorMessage: String){
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
+        binding.tvplaceholder.text = errorMessage
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty(message: String){
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+        binding.tvplaceholder.text = message
+        binding.flrecyclerContainer.visibility = View.GONE
     }
 
     companion object {

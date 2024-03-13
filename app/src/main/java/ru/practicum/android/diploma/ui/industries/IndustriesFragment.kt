@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.databinding.FragmentIndustryBinding
 import ru.practicum.android.diploma.domain.industries.ParentIndustriesAllDeal
 import ru.practicum.android.diploma.presentation.industries.IndustriesViewModel
+import ru.practicum.android.diploma.util.extensions.visibleOrGone
 
 class IndustriesFragment : Fragment() {
 
@@ -37,9 +39,9 @@ class IndustriesFragment : Fragment() {
         val sharedPrefsIndustries = context?.getSharedPreferences(INDUSTRIES_PREFERENCES, Context.MODE_PRIVATE)
 
         val adapter = IndustriesAdapter()
-        binding.regionRecycler.layoutManager =
+        binding.industryRecycler.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.regionRecycler.adapter = adapter
+        binding.industryRecycler.adapter = adapter
 
         adapter.itemClickListener = { position, _ ->
             selectedIndustries = adapter.industriesList[position]
@@ -58,13 +60,13 @@ class IndustriesFragment : Fragment() {
         viewModel.observeState().observe(viewLifecycleOwner) { state ->
             when (state) {
                 is IndustriesState.Content -> {
+                    showContent()
                     adapter.industriesList.addAll(state.industries)
                     adapter.filteredList.addAll(state.industries)
                     adapter.notifyDataSetChanged()
                 }
-
-                is IndustriesState.Error -> ""
-                is IndustriesState.Loading -> ""
+                is IndustriesState.Error -> showError(getString(state.errorMessage))
+                is IndustriesState.Empty -> showEmpty(getString(state.message))
             }
         }
 
@@ -115,6 +117,28 @@ class IndustriesFragment : Fragment() {
         binding.click.setOnClickListener {
             binding.edit.setText("")
         }
+    }
+
+    private fun showContent(){
+        Log.e("industry", "showContent")
+        binding.placeholderError.visibility = View.GONE
+        binding.clrecyclerContainer.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorMessage: String){
+        Log.e("industry", "showError")
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
+        binding.tvplaceholder.text = errorMessage
+        binding.clrecyclerContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty(message: String){
+        Log.e("industry", "showEmpty")
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+        binding.tvplaceholder.text = message
+        binding.clrecyclerContainer.visibility = View.GONE
     }
 
     override fun onDestroyView() {

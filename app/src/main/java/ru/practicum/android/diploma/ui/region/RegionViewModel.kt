@@ -37,7 +37,7 @@ class RegionViewModel(
             errorMessage != null -> {
                 renderState(
                     RegionState.Error(
-                        errorMessage = R.string.server_error
+                        errorMessage = R.string.nothing_found
                     )
                 )
             }

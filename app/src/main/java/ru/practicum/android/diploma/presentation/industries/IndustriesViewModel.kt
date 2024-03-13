@@ -34,11 +34,23 @@ class IndustriesViewModel(
     }
 
     private fun processResult(industriesDetail: List<ParentIndustriesAllDeal>?, errorMessage: Int?) {
+        val industries = mutableListOf<ParentIndustriesAllDeal>()
+        if (industriesDetail != null) {
+            industries.addAll(industriesDetail)
+        }
         when {
             errorMessage != null -> {
                 renderState(
                     IndustriesState.Error(
-                        errorMessage = R.string.server_error
+                        errorMessage = R.string.nothing_found
+                    )
+                )
+            }
+
+            industries.isEmpty() -> {
+                renderState(
+                    IndustriesState.Empty(
+                        message = R.string.no_such_industry
                     )
                 )
             }
@@ -46,7 +58,7 @@ class IndustriesViewModel(
             else -> {
                 renderState(
                     IndustriesState.Content(
-                        industries = industriesDetail!!
+                        industries = industries
                     )
                 )
             }
