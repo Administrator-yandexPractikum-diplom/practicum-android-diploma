@@ -123,6 +123,9 @@ class FiltersFragment : Fragment() {
 
         viewModel.salaryBooleanState.observe(viewLifecycleOwner) { salaryBoolean ->
             binding.checkBox.isChecked = salaryBoolean?.isChecked ?: false
+            if(salaryBoolean?.isChecked == true){
+               binding.filterFunctionButton.visibility = View.VISIBLE
+            }
         }
 
         binding.workplaceView.setOnClickListener {
@@ -146,7 +149,7 @@ class FiltersFragment : Fragment() {
         binding.edit.addTextChangedListener(textWatcher)
 
         binding.clearIcon.setOnClickListener {
-            binding.edit.setText("")
+            binding.edit.setText("1")
         }
 
         binding.vacancyToolbar.setOnClickListener {
