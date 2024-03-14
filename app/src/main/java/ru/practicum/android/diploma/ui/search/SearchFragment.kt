@@ -92,6 +92,11 @@ class SearchFragment : Fragment() {
                 .navigate(R.id.action_mainFragment_to_filtersFragment)
         }
 
+        binding.filterOnImageView.setOnClickListener {
+            findNavController()
+                .navigate(R.id.action_mainFragment_to_filtersFragment)
+        }
+
         viewModel.isFilterOn.observe(viewLifecycleOwner, Observer {
             binding.filterImageView.visibleOrGone(!it)
             binding.filterOnImageView.visibleOrGone(it)
