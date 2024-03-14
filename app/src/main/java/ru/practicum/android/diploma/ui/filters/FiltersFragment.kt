@@ -134,8 +134,8 @@ class FiltersFragment : Fragment() {
 
         viewModel.salaryBooleanState.observe(viewLifecycleOwner) { salaryBoolean ->
             binding.checkBox.isChecked = salaryBoolean?.isChecked ?: false
-            if(salaryBoolean?.isChecked == true){
-               binding.filterFunctionButton.visibility = View.VISIBLE
+            if (salaryBoolean?.isChecked == true) {
+                binding.filterFunctionButton.visibility = View.VISIBLE
             }
         }
 

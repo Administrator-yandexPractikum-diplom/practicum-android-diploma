@@ -8,8 +8,8 @@ import kotlinx.coroutines.launch
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.domain.filter.FilterInfoRepository
 import ru.practicum.android.diploma.domain.filter.datashared.IndustriesShared
-import ru.practicum.android.diploma.domain.industries.ParentIndustriesAllDeal
 import ru.practicum.android.diploma.domain.industries.IndustriesInteractor
+import ru.practicum.android.diploma.domain.industries.ParentIndustriesAllDeal
 import ru.practicum.android.diploma.presentation.industries.IndustriesState
 
 class IndustriesViewModel(

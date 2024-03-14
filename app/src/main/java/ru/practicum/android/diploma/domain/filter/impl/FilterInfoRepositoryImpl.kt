@@ -15,10 +15,9 @@ import ru.practicum.android.diploma.domain.filter.datashared.SalaryTextShared
 class FilterInfoRepositoryImpl(private val context: Context) : FilterInfoRepository {
 
 
-
     private val gson = Gson()
 
-     val sharedPreferences: SharedPreferences by lazy {
+    val sharedPreferences: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
@@ -112,11 +111,11 @@ class FilterInfoRepositoryImpl(private val context: Context) : FilterInfoReposit
     }
 
     companion object {
-         const val PREFS_NAME = "FilterInfoPrefs"
-         const val KEY_COUNTRY = "country"
-         const val KEY_REGION = "region"
-         const val KEY_INDUSTRIES = "industries"
-         const val KEY_SALARY_TEXT = "salary_text"
-         const val KEY_SALARY_BOOLEAN = "salary_boolean"
+        const val PREFS_NAME = "FilterInfoPrefs"
+        const val KEY_COUNTRY = "country"
+        const val KEY_REGION = "region"
+        const val KEY_INDUSTRIES = "industries"
+        const val KEY_SALARY_TEXT = "salary_text"
+        const val KEY_SALARY_BOOLEAN = "salary_boolean"
     }
 }

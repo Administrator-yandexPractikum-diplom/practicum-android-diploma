@@ -131,42 +131,42 @@ class RegionFragment : Fragment() {
         }
     }
 
-        override fun onResume() {
-            super.onResume()
+    override fun onResume() {
+        super.onResume()
 
-        }
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            _binding = null
-        }
-
-        private fun showContent() {
-            binding.flrecyclerContainer.visibility = View.VISIBLE
-            binding.regionProgressBar.visibility = View.GONE
-        }
-
-        private fun showLoading() {
-            binding.flrecyclerContainer.visibility = View.GONE
-            binding.regionProgressBar.visibility = View.VISIBLE
-        }
-
-        private fun showError(errorMessage: String) {
-            binding.placeholderError.visibility = View.VISIBLE
-            binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
-            binding.tvplaceholder.text = errorMessage
-            binding.flrecyclerContainer.visibility = View.GONE
-        }
-
-        private fun showEmpty(message: String) {
-            binding.placeholderError.visibility = View.VISIBLE
-            binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
-            binding.tvplaceholder.text = message
-            binding.flrecyclerContainer.visibility = View.GONE
-        }
-
-        companion object {
-            const val REGION_TEXT = "region_text"
-            const val REGION_ID = "region_id"
-        }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun showContent() {
+        binding.flrecyclerContainer.visibility = View.VISIBLE
+        binding.regionProgressBar.visibility = View.GONE
+    }
+
+    private fun showLoading() {
+        binding.flrecyclerContainer.visibility = View.GONE
+        binding.regionProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorMessage: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
+        binding.tvplaceholder.text = errorMessage
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty(message: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+        binding.tvplaceholder.text = message
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    companion object {
+        const val REGION_TEXT = "region_text"
+        const val REGION_ID = "region_id"
+    }
+}

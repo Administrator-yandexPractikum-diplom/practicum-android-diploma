@@ -7,5 +7,4 @@ interface FiltersRepository {
     fun setFilter(filter: Filter)
 
     fun getFilters(): Filter
-
 }
