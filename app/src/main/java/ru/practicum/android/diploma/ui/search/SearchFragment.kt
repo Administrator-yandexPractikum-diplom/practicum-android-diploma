@@ -97,6 +97,7 @@ class SearchFragment : Fragment() {
             binding.filterOnImageView.visibleOrGone(it)
         })
 
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.observeState().collect { state ->
