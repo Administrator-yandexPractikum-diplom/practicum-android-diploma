@@ -14,11 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.databinding.FragmentVacancyDetailBinding
-import ru.practicum.android.diploma.domain.models.detail.VacancyDetail
-import ru.practicum.android.diploma.domain.models.detail.VacancyPhoneAndComment
+import ru.practicum.android.diploma.domain.detail.VacancyDetail
+import ru.practicum.android.diploma.domain.detail.VacancyPhoneAndComment
 import ru.practicum.android.diploma.presentation.detail.DetailAdapter
 import ru.practicum.android.diploma.ui.similarvacancies.SimilarVacanciesFragment
 import ru.practicum.android.diploma.ui.vacancydetail.viewmodel.DetailViewModel
@@ -27,7 +27,7 @@ import ru.practicum.android.diploma.util.extensions.visibleOrGone
 
 class VacancyDetailFragment : Fragment() {
 
-    private val vacancyDetailViewModel: DetailViewModel by activityViewModel()
+    private val vacancyDetailViewModel: DetailViewModel by viewModel()
     private var _binding: FragmentVacancyDetailBinding? = null
     private var adapter: DetailAdapter? = null
     private val binding get() = _binding!!
@@ -156,7 +156,12 @@ class VacancyDetailFragment : Fragment() {
             )
         )
         showEmploymentAndSchedule(vacancyDetail)
-        binding.tvdescription.setText(Html.fromHtml(vacancyDetail.description, Html.FROM_HTML_MODE_COMPACT))
+        binding.tvdescription.setText(
+            Html.fromHtml(
+                vacancyDetail.description,
+                Html.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM
+            )
+        )
         checkKeySkills(vacancyDetail.keySkills, binding.tvkeySkills)
         showContacts(vacancyDetail)
     }
@@ -167,7 +172,7 @@ class VacancyDetailFragment : Fragment() {
             binding.tvkeySkillsLabel.visibility = View.VISIBLE
             view.text = vacancyDetailItemList
                 .joinToString(separator = "\n") {
-                    HtmlCompat.fromHtml("&#8226  $it", HtmlCompat.FROM_HTML_MODE_LEGACY)
+                    HtmlCompat.fromHtml("&#8226  $it", HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM)
                 }
         } else {
             view.visibility = View.GONE

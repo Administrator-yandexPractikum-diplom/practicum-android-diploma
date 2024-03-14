@@ -28,7 +28,7 @@
             android:layout_width="@dimen/edit_text_height"
             android:layout_height="@dimen/edit_text_height"
             android:layout_gravity="end"
-            android:layout_marginRight="@dimen/margin_8">
+            android:layout_marginEnd="@dimen/margin_8">
 
 
             <ImageView
@@ -36,7 +36,16 @@
                 android:layout_width="@dimen/margin_24"
                 android:layout_height="@dimen/margin_24"
                 android:layout_margin="@dimen/margin_12"
-                android:src="@drawable/ic_filter" />
+                android:src="@drawable/ic_filter"
+                android:visibility="visible"/>
+
+            <ImageView
+                android:id="@+id/filterOnImageView"
+                android:layout_width="@dimen/margin_24"
+                android:layout_height="@dimen/margin_24"
+                android:layout_margin="@dimen/margin_12"
+                android:src="@drawable/ic_filter_on"
+                android:visibility="gone"/>
 
         </FrameLayout>
 
@@ -49,31 +58,32 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/margin_16"
         android:layout_marginVertical="@dimen/margin_8"
+        android:layout_marginBottom="12dp"
         android:background="@drawable/shape_on_search_screen"
         android:imeOptions="actionDone"
+        android:theme="@style/SearchEditText"
         app:boxStrokeColor="@color/edittextlayot_box"
-        app:endIconDrawable="@drawable/ic_search"
+        app:endIconTint="@color/black"
         app:hintEnabled="false"
+        app:layout_constraintBottom_toTopOf="@+id/message"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/navigation_toolbar"
-        android:textCursorDrawable="@drawable/color_cursor">
+        app:layout_constraintTop_toBottomOf="@id/navigation_toolbar">
 
         <EditText
             android:id="@+id/searchEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="@dimen/margin_16"
+            android:layout_marginVertical="@dimen/margin_8"
             android:drawableEnd="@drawable/ic_search"
             android:drawablePadding="@dimen/margin_16"
             android:hint="@string/search_request"
-            android:background="@drawable/shape_on_search_screen"
             android:imeOptions="actionDone|flagNoExtractUi"
             android:inputType="textNoSuggestions"
             android:maxLines="1"
-            android:textColor="@color/black"
-            android:textColorHint="@color/YP_Text_Gray"
-            android:textCursorDrawable="@drawable/color_cursor"/>
+            android:textColor="@color/black" />
 
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -82,7 +92,9 @@
         android:id="@+id/clearButton"
         android:layout_width="@dimen/edit_text_height"
         android:layout_height="@dimen/edit_text_height"
-        android:layout_marginEnd="@dimen/margin_4"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:alpha="0"
         android:enabled="false"
         app:layout_constraintBottom_toBottomOf="@id/searchContainer"
@@ -214,6 +226,32 @@
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/margin_16"
             android:text="@string/no_internet" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/serverError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchContainer">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="223dp"
+            android:layout_marginHorizontal="@dimen/margin_16"
+            android:background="@drawable/server_error" />
+
+        <TextView
+            style="@style/Text_Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_16"
+            android:text="@string/server_error_search" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

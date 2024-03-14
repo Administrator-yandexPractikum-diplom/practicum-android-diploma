@@ -1,5 +1,7 @@
 package ru.practicum.android.diploma.ui.search.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -7,7 +9,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.google.gson.Gson
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,18 +31,23 @@ class SearchViewModel(
 
     private val state = MutableStateFlow(SearchViewState())
     fun observeState() = state.asStateFlow()
-    private var vacancyJob: Job? = null
     var flow: Flow<PagingData<Vacancy>> = emptyFlow()
         private set
 
     private var query: String = ""
 
+    private var _isFilterOn: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isFilterOn: LiveData<Boolean> = _isFilterOn
+
     private fun subscribeVacanciesPagination(params: Map<String, String>) {
-        vacancyJob?.cancel()
         flow = Pager(PagingConfig(pageSize = 20)) {
-            VacanciesPagingSource(repository, params)
+            VacanciesPagingSource(repository, params, null, null)
         }.flow.cachedIn(viewModelScope)
         state.update { it.copy(state = SearchState.Content(emptyList())) }
+    }
+
+    init {
+        searchRequest()
     }
 
     fun onSearch(text: String) {
@@ -62,34 +68,38 @@ class SearchViewModel(
             viewModelScope.launch {
                 state.update { it.copy(state = SearchState.Loading) }
                 val filter = filtersRepository.getFilters()
+                _isFilterOn.value =
+                    (filter.salary != "1" || filter.onlyWithSalary == true || !filter.country.isNullOrBlank()
+                        || !filter.region.isNullOrBlank() || !filter.industry.isNullOrBlank())
 
                 val params = mutableMapOf("text" to query)
                 params["page"] = "1"
 
                 filter.salary?.let {
-                    params["salary"] = filter.region.toString()
+                    if (it.isNotEmpty()) {
+                        params["salary"] = it
+                    } else {
+                        params["salary"] = "1"
+                    }
                 }
 
                 filter.onlyWithSalary?.let {
-                    params["only_with_salary"] = filter.onlyWithSalary.toString()
+                    params["only_with_salary"] = it.toString()
                 }
 
-                //todo: все фильтры которые закоментированны нужно передавать id
-//                filter.country?.let {
-//                    params["area"] = filter.country.toString()
-//                }
+                filter.country?.let {
+                    params["area"] = it
+                }
 
-//                filter.region?.let {
-//                    params["area"] = filter.region.toString()
-//                }
-//
-//                filter.industry?.let {
-//                    params["industry"] = filter.region.toString()
-//                }
+                filter.region?.let {
+                    params["area"] = it
+                }
 
-                val result = repository.vacanciesPagination(params)
+                filter.industry?.let {
+                    params["industry"] = it
+                }
 
-                when (result) {
+                when (val result = repository.vacanciesPagination(params)) {
                     is Resource.Success -> {
                         val founded = result.data?.foundedVacancies?.toString()?.let {
                             if (it != "0") {
@@ -108,6 +118,10 @@ class SearchViewModel(
 
                     is Resource.Error -> {
                         state.update { it.copy(state = SearchState.Error) }
+                    }
+
+                    is Resource.ServerError -> {
+                        state.update { it.copy(state = SearchState.ServerError) }
                     }
                 }
             }

@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ru.practicum.android.diploma.R
-import ru.practicum.android.diploma.domain.models.detail.VacancyPhoneAndComment
+import ru.practicum.android.diploma.domain.detail.VacancyPhoneAndComment
 import ru.practicum.android.diploma.util.checkIfNotNull
 
 class DetailViewHolder(
@@ -48,6 +48,5 @@ class DetailViewHolder(
         chooserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(chooserIntent)
     }
-
 }
 

@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.databinding.FragmentCountryBinding
+import ru.practicum.android.diploma.domain.filter.datashared.CountryShared
 
 class CountryFragment : Fragment() {
 
@@ -31,9 +31,12 @@ class CountryFragment : Fragment() {
 
         val adapter = CountryAdapter()
         adapter.itemClickListener = { _, item ->
-            val bundle = Bundle()
-            bundle.putString("key", item.name)
-            setFragmentResult("requestKey", bundle)
+            viewModel.setCountryInfo(
+                CountryShared(
+                    countryId = item.id,
+                    countryName = item.name
+                )
+            )
             findNavController().popBackStack()
         }
 
@@ -45,6 +48,7 @@ class CountryFragment : Fragment() {
             when (state) {
                 is CountryState.Content -> {
                     adapter.countryList.addAll(state.region)
+                    adapter.filteredList.addAll(state.region)
                     adapter.notifyDataSetChanged()
                 }
 

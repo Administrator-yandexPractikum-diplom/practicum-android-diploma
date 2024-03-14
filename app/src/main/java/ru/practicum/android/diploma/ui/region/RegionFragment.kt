@@ -3,18 +3,23 @@ package ru.practicum.android.diploma.ui.region
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.data.converters.AreaConverter.mapToCountry
 import ru.practicum.android.diploma.databinding.FragmentRegionBinding
+import ru.practicum.android.diploma.domain.filter.datashared.RegionShared
 import ru.practicum.android.diploma.ui.country.CountryAdapter
 
 class RegionFragment : Fragment() {
@@ -31,6 +36,26 @@ class RegionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val adapter = CountryAdapter()
+        adapter.itemClickListener = { _, item ->
+            viewModel.setRegionInfo(
+                RegionShared(
+                    regionId = item.id,
+                    regionParentId = item.parentId,
+                    regionName = item.name
+                )
+            )
+            findNavController().popBackStack()
+        }
+
+        binding.click.setOnClickListener {
+            binding.edit.setText("")
+        }
+
+        binding.regionRecycler.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.regionRecycler.adapter = adapter
+
         binding.vacancyToolbar.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -43,6 +68,7 @@ class RegionFragment : Fragment() {
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
 
@@ -53,54 +79,94 @@ class RegionFragment : Fragment() {
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
 
             override fun afterTextChanged(s: Editable?) {
+                adapter.filter(s.toString())
                 if (binding.edit.text.isNotEmpty()) {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.close_icon)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
         }
+
         binding.edit.addTextChangedListener(textWatcher)
 
-        binding.click.setOnClickListener {
-            binding.edit.setText("")
-        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.observeState().observe(viewLifecycleOwner) { state ->
+                    Log.d("StateError", "Состояние региона = $state")
+                    when (state) {
+                        is RegionState.Content -> {
+                            showContent()
+                            adapter.countryList.clear()
+                            adapter.filteredList.clear()
+                            adapter.countryList.addAll(state.regionId.areas.map { it.mapToCountry() }
+                                .sortedBy { it.name })
+                            adapter.filteredList.addAll(state.regionId.areas.map { it.mapToCountry() }
+                                .sortedBy { it.name })
 
-        val adapter = CountryAdapter()
-        adapter.itemClickListener = { _, item ->
-            val bundle = Bundle()
-            bundle.putString("keyRegion", item.name)
-            setFragmentResult("requestKeyRegion", bundle)
-            findNavController().popBackStack()
-        }
+                            if (adapter.countryList.size == 0) {
+                                binding.placeholderError.visibility = View.VISIBLE
+                                binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+                                binding.tvplaceholder.text = "Это пиздос"
+                                binding.flrecyclerContainer.visibility = View.GONE
+                            }
 
-        binding.regionRecycler.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.regionRecycler.adapter = adapter
+                            adapter.notifyDataSetChanged()
+                        }
 
-        viewModel.loadRegion("113")
-
-        viewModel.observeState().observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is RegionState.Content -> {
-                    adapter.countryList.addAll(state.regionId.areas.map { it.mapToCountry() }.sortedBy { it.name })
-                    adapter.notifyDataSetChanged()
+                        is RegionState.Empty -> showEmpty(getString(state.message))
+                        is RegionState.Error -> showError(getString(state.errorMessage))
+                        is RegionState.Loading -> showLoading()
+                    }
                 }
-
-                is RegionState.Error -> ""
-                is RegionState.Loading -> ""
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showContent() {
+        binding.flrecyclerContainer.visibility = View.VISIBLE
+        binding.regionProgressBar.visibility = View.GONE
+    }
+
+    private fun showLoading() {
+        binding.flrecyclerContainer.visibility = View.GONE
+        binding.regionProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorMessage: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
+        binding.tvplaceholder.text = errorMessage
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty(message: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+        binding.tvplaceholder.text = message
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    companion object {
+        const val REGION_TEXT = "region_text"
+        const val REGION_ID = "region_id"
     }
 }

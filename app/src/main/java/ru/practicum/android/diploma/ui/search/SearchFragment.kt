@@ -2,28 +2,25 @@ package ru.practicum.android.diploma.ui.search
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.androidx.scope.scopeActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.databinding.FragmentSearchBinding
@@ -52,6 +49,7 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupMainRecycler()
@@ -62,10 +60,15 @@ class SearchFragment : Fragment() {
         }
 
         binding.searchEditText.onTextChange {
-            binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
-            binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_clear)
+            binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0)
             binding.clearButton.isEnabled = true
             binding.clearButton.visibleOrGone(binding.clearButton.isEnabled)
+            if (binding.searchEditText.text.toString().isEmpty()) {
+                binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_search, 0)
+                binding.clearButton.isEnabled = false
+                binding.clearButton.visibleOrGone(binding.clearButton.isEnabled)
+                binding.tvRvHeader.visibility = View.GONE
+            }
         }
 
         binding.searchEditText.onTextChangeDebounce()
@@ -73,7 +76,7 @@ class SearchFragment : Fragment() {
             .onEach {
                 val query = it?.toString().orEmpty()
                 viewModel.onSearch(query)
-//                hideKeyBoard()
+                if (query.isNotEmpty()) hideKeyBoard()
             }
             .launchIn(lifecycleScope)
 
@@ -89,6 +92,15 @@ class SearchFragment : Fragment() {
                 .navigate(R.id.action_mainFragment_to_filtersFragment)
         }
 
+        viewModel.isFilterOn.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                binding.filterImageView.setBackgroundResource(R.color.YP_Blue)
+            } else {
+                binding.filterImageView.setBackgroundResource(R.color.white_black)
+            }
+        })
+
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.observeState().collect { state ->
@@ -97,8 +109,8 @@ class SearchFragment : Fragment() {
                     binding.imageBinoculars.visibleOrGone(state.state == null)
                     binding.placeholderError.visibleOrGone(state.state is SearchState.Empty)
                     binding.placeholderNoConnection.visibleOrGone(state.state is SearchState.Error)
-
                     binding.tvRvHeader.visibleOrGone(state.foundVacancies != null && state.state !is SearchState.Error)
+                    binding.serverError.visibleOrGone(state.state is SearchState.ServerError)
                     state.foundVacancies?.let {
                         binding.tvRvHeader.text = it
                     }
@@ -112,6 +124,7 @@ class SearchFragment : Fragment() {
                     } else {
                         searchJob?.cancel()
                         searchJob = null
+
                     }
                 }
             }
@@ -131,6 +144,11 @@ class SearchFragment : Fragment() {
         _binding = null
     }
 
+    override fun onResume() {
+        super.onResume()
+
+    }
+
     private fun setupMainRecycler() {
         adapter = PagingSearchAdapter {
             findNavController().navigate(R.id.action_mainFragment_to_vacanciesFragment, bundleOf("vacancy_id" to it))
@@ -139,28 +157,32 @@ class SearchFragment : Fragment() {
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onStart() {
         super.onStart()
 
         if (binding.searchEditText.text.toString().isNotEmpty()) {
-            binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CUSTOM
-            binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_clear)
+            binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0)
             binding.clearButton.isEnabled = true
+        } else {
+            binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_search, 0)
+            binding.clearButton.isEnabled = false
         }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun clearSearchText() {
         binding.searchEditText.setText("")
-        binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CUSTOM
-        binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_search)
         binding.clearButton.isEnabled = false
         binding.tvRvHeader.visibility = View.GONE
+        binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_search, 0)
     }
 
     private fun hideKeyBoard() {
-        val inputMethodManager =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        inputMethodManager?.hideSoftInputFromWindow(binding.searchEditText.windowToken, 0)
+        _binding?.searchEditText?.let {
+            val inputMethodManager =
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.hideSoftInputFromWindow(binding.searchEditText.windowToken, 0)
+        }
     }
 }

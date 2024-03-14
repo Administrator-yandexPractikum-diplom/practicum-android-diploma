@@ -7,8 +7,8 @@ import ru.practicum.android.diploma.data.vacancydetail.dto.responseunits.Address
 import ru.practicum.android.diploma.data.vacancydetail.dto.responseunits.KeySkillVacancyDetail
 import ru.practicum.android.diploma.data.vacancydetail.dto.responseunits.Phones
 import ru.practicum.android.diploma.data.vacancydetail.dto.responseunits.VacancyDetailDtoResponse
+import ru.practicum.android.diploma.domain.detail.VacancyDetail
 import ru.practicum.android.diploma.domain.models.Vacancy
-import ru.practicum.android.diploma.domain.models.detail.VacancyDetail
 
 object VacancyConverter {
     fun VacancyDto.toVacancy(): Vacancy {
@@ -46,11 +46,13 @@ object VacancyConverter {
 
     private fun createAddress(address: Address?): String? {
         return if (address != null) {
-            val city = if (address.city != null) "${address.city}, " else ""
-            val street = if (address.street != null) "${address.street}, " else ""
-            val building = if (address.building != null) "${address.building}" else ""
+            val city = if (address.city != null) "${address.city}" else ""
+            val street = if (address.street != null) ", ${address.street}" else ""
+            val building = if (address.building != null) ", ${address.building}" else ""
             "$city$street$building"
-        } else { null }
+        } else {
+            null
+        }
     }
 
     fun formatSalary(salary: Salary?): String {
@@ -95,7 +97,11 @@ object VacancyConverter {
         var phoneString: String
         val phoneList = mutableListOf<String>()
         phones?.forEach {
-            phoneString = "+${it.country} (${it.city}) ${it.number}"
+            phoneString = "+${it.country}" +
+                " (${it.city}) " +
+                "${it.number.substring(0, 3)}-" +
+                "${it.number.substring(3, 5)}-" +
+                it.number.substring(5, 7)
             phoneList.add(phoneString)
         }
         return phoneList

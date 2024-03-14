@@ -1,22 +1,70 @@
 package ru.practicum.android.diploma.ui.filters
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.databinding.FragmentFiltersBinding
+import ru.practicum.android.diploma.domain.filter.datashared.SalaryBooleanShared
+import ru.practicum.android.diploma.domain.filter.datashared.SalaryTextShared
 
 class FiltersFragment : Fragment() {
 
+    private val viewModel by viewModel<FilterViewModel>()
+
     private var _binding: FragmentFiltersBinding? = null
     private val binding get() = _binding!!
+
+    val handler = Handler(Looper.getMainLooper())
+
+    val textWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            if (start > 0) {
+                binding.clearIcon.visibility = View.VISIBLE
+            } else {
+                binding.clearIcon.visibility = View.GONE
+            }
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            binding.clearIcon.visibility = View.VISIBLE
+
+            if (s?.isNotEmpty() == true) {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.clearIcon.visibility = View.VISIBLE
+                binding.filterFunctionButton.visibility = View.VISIBLE
+            } else {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.clearIcon.visibility = View.GONE
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            handler.removeCallbacksAndMessages(null)
+
+            handler.postDelayed({
+                s?.toString()?.let {
+                    viewModel.setSalaryTextInfo(
+                        SalaryTextShared(
+                            salary = it
+                        )
+                    )
+                }
+            }, DELAY)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentFiltersBinding.inflate(inflater, container, false)
@@ -26,8 +74,94 @@ class FiltersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply.visibility = View.GONE
-        binding.remove.visibility = View.GONE
+        viewModel.initFilterInfo()
+
+        val regionName = viewModel.regionState.value?.regionName
+        Log.d("RegionInfoState", "regionName = $regionName")
+
+        viewModel.countryState.observe(viewLifecycleOwner) { country ->
+            if (country != null) {
+                binding.workplaceValue.text = country.countryName
+                binding.workplaceValue.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.workplaceView.setImageResource(R.drawable.close_icon)
+                binding.workplaceView.isClickable = true
+                binding.workplaceHint.visibility = View.VISIBLE
+                binding.filterFunctionButton.visibility = View.VISIBLE
+
+                viewModel.regionState.observe(viewLifecycleOwner) { region ->
+                    if (region != null) {
+                        binding.workplaceValue.text = country.countryName + ", " + region.regionName
+                    } else {
+                        binding.workplaceValue.text = country.countryName
+                    }
+                }
+            } else {
+                binding.workplaceView.setImageResource(R.drawable.arrow_forward)
+                binding.workplaceView.isClickable = false
+                binding.workplaceHint.visibility = View.GONE
+            }
+        }
+
+        viewModel.industriesState.observe(viewLifecycleOwner) { industries ->
+            if (industries != null) {
+                binding.industryValue.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.industryValue.text = industries.industriesName
+                binding.industryView.setImageResource(R.drawable.close_icon)
+                binding.industryView.isClickable = true
+                binding.industryHint.visibility = View.VISIBLE
+                binding.filterFunctionButton.visibility = View.VISIBLE
+            } else {
+                binding.industryView.setImageResource(R.drawable.arrow_forward)
+                binding.industryView.isClickable = false
+                binding.industryHint.visibility = View.GONE
+            }
+        }
+
+        viewModel.salaryTextState.observe(viewLifecycleOwner) { salaryText ->
+            if (salaryText?.salary?.isNotEmpty() == true) {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.edit.setText(salaryText.salary)
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.clearIcon.visibility = View.VISIBLE
+                binding.filterFunctionButton.visibility = View.VISIBLE
+            } else {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.edit.setText("")
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.clearIcon.visibility = View.GONE
+            }
+        }
+
+        viewModel.salaryBooleanState.observe(viewLifecycleOwner) { salaryBoolean ->
+            binding.checkBox.isChecked = salaryBoolean?.isChecked ?: false
+            if (salaryBoolean?.isChecked == true) {
+                binding.filterFunctionButton.visibility = View.VISIBLE
+            }
+        }
+
+        binding.workplaceView.setOnClickListener {
+            binding.workplaceValue.text = "Место работы"
+            binding.workplaceValue.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+            binding.workplaceView.setImageResource(R.drawable.arrow_forward)
+            binding.workplaceValue.isClickable = false
+            binding.workplaceHint.visibility = View.GONE
+            viewModel.setWorkplaceInfo(null, null)
+        }
+
+        binding.industryView.setOnClickListener {
+            binding.industryValue.text = "Отрасль"
+            binding.industryValue.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+            binding.industryView.setImageResource(R.drawable.arrow_forward)
+            binding.industryView.isClickable = false
+            binding.industryHint.visibility = View.GONE
+            viewModel.setIndustriesInfo(null)
+        }
+
+        binding.edit.addTextChangedListener(textWatcher)
+
+        binding.clearIcon.setOnClickListener {
+            binding.edit.setText("")
+        }
 
         binding.vacancyToolbar.setOnClickListener {
             findNavController().navigateUp()
@@ -45,148 +179,34 @@ class FiltersFragment : Fragment() {
             )
         }
 
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                val place = binding.workplaceValue.text
-                val check = binding.checkBox.isChecked
-                val salary = binding.edit
-                if (place != "Место работы" || check || salary.text.isNotEmpty()) {
-                    binding.apply.visibility = View.VISIBLE
-                    binding.remove.visibility = View.VISIBLE
-                } else {
-                    binding.apply.visibility = View.GONE
-                    binding.remove.visibility = View.GONE
-                }
-
-                binding.clearIcon.visibility
-                if (s?.isNotEmpty() == true) {
-                    binding.clearIcon.visibility = View.VISIBLE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Blue))
-                } else {
-                    binding.clearIcon.visibility = View.GONE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
-                }
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val place = binding.workplaceValue.text
-                val check = binding.checkBox.isChecked
-                val salary = binding.edit
-                if (place != "Место работы" || check || salary.text.isNotEmpty()) {
-                    binding.apply.visibility = View.VISIBLE
-                    binding.remove.visibility = View.VISIBLE
-                } else {
-                    binding.apply.visibility = View.GONE
-                    binding.remove.visibility = View.GONE
-                }
-
-                if (s?.isNotEmpty() == true) {
-                    binding.clearIcon.visibility = View.VISIBLE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Blue))
-                } else {
-                    binding.clearIcon.visibility = View.GONE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                val place = binding.workplaceValue.text
-                val check = binding.checkBox.isChecked
-                val salary = binding.edit
-                if (place != "Место работы" || check || salary.text.isNotEmpty()) {
-                    binding.apply.visibility = View.VISIBLE
-                    binding.remove.visibility = View.VISIBLE
-                } else {
-                    binding.apply.visibility = View.GONE
-                    binding.remove.visibility = View.GONE
-                }
-
-                if (s?.isNotEmpty() == true) {
-                    binding.clearIcon.visibility = View.VISIBLE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Blue))
-                } else {
-                    binding.clearIcon.visibility = View.GONE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
-                }
-            }
-        }
-        binding.edit.addTextChangedListener(textWatcher)
-
-        binding.clearIcon.setOnClickListener {
-            binding.edit.setText("")
+        binding.apply.setOnClickListener {
+            findNavController().popBackStack()
         }
 
-        binding.edit.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                if (binding.edit.text.isNotEmpty()) {
-                    binding.clearIcon.visibility = View.VISIBLE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Blue))
-                } else {
-                    binding.clearIcon.visibility = View.GONE
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
-                }
-            } else {
-                binding.clearIcon.visibility = View.GONE
-                if (binding.edit.text.isNotEmpty()) {
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Black))
-                } else {
-                    binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
-                }
-            }
+        binding.remove.setOnClickListener {
+            viewModel.setWorkplaceInfo(null, null)
+            viewModel.setIndustriesInfo(null)
+            viewModel.setSalaryTextInfo(null)
+            viewModel.setSalaryBooleanInfo(null)
+            binding.filterFunctionButton.visibility = View.GONE
         }
 
         binding.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            val place = binding.workplaceValue.text
-            val check = binding.checkBox.isChecked
-            val salary = binding.edit
-            if (place != "Место работы" || check || salary.text.isNotEmpty()) {
-                binding.apply.visibility = View.VISIBLE
-                binding.remove.visibility = View.VISIBLE
-            } else {
-                binding.apply.visibility = View.GONE
-                binding.remove.visibility = View.GONE
-            }
-        }
-
-        setFragmentResultListener("requestKeyPlace") { _, result ->
-            val data = result.getString("keyPlace")
-            binding.workplaceValue.text = data
-            binding.workplaceValue.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Black))
-            val place = binding.workplaceValue.text
-            val check = binding.checkBox.isChecked
-            val salary = binding.edit
-            if (place != "Место работы" || check || salary.text.isNotEmpty()) {
-                binding.apply.visibility = View.VISIBLE
-                binding.remove.visibility = View.VISIBLE
-            } else {
-                binding.apply.visibility = View.GONE
-                binding.remove.visibility = View.GONE
-            }
-
-            if (place != "Место работы") {
-                binding.workplaceView.setImageResource(R.drawable.close_icon)
-            } else {
-                binding.workplaceView.setImageResource(R.drawable.arrow_forward)
-            }
-        }
-
-        binding.apply.setOnClickListener {
-//            val bundle = Bundle()
-//            val place = binding.workplaceValue.text.split(", ")
-//            val country = place[0]
-//            val region = place[1]
-//            val check = binding.checkBox.isChecked
-//            val industry = binding.industryValue.text.toString()
-//            val salary = binding.edit.text.toString()
-//            val result = Filter(country, region, industry, salary, check)
-//            bundle.putString("key", Gson().toJson(result))
-//            setFragmentResult("requestKey", bundle)
-            findNavController().popBackStack()
+            // Обновляем состояние флажка в viewModel
+            viewModel.setSalaryBooleanInfo(
+                SalaryBooleanShared(
+                    isChecked = isChecked
+                )
+            )
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val DELAY = 2000L
     }
 }

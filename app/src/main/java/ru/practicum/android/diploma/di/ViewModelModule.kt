@@ -1,40 +1,51 @@
 package ru.practicum.android.diploma.di
 
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import ru.practicum.android.diploma.presentation.industries.IndustriesViewModel
 import ru.practicum.android.diploma.ui.country.CountryViewModel
 import ru.practicum.android.diploma.ui.favorites.viewmodel.FavoriteViewModel
+import ru.practicum.android.diploma.ui.filters.FilterViewModel
+import ru.practicum.android.diploma.ui.industries.IndustriesViewModel
 import ru.practicum.android.diploma.ui.region.RegionViewModel
 import ru.practicum.android.diploma.ui.search.viewmodel.SearchViewModel
+import ru.practicum.android.diploma.ui.similarvacancies.viewmodel.SimilarViewModel
 import ru.practicum.android.diploma.ui.vacancydetail.viewmodel.DetailViewModel
 import ru.practicum.android.diploma.ui.workplace.WorkplaceViewModel
 
 val viewModelModule = module {
 
-    single {
+    viewModel {
         DetailViewModel(get(), get())
     }
 
-    single {
+    viewModel {
         FavoriteViewModel(get())
     }
-    single {
-        WorkplaceViewModel()
+    viewModel {
+        WorkplaceViewModel(get())
     }
 
-    single {
-        IndustriesViewModel(get())
+    viewModel {
+        IndustriesViewModel(get(), get())
     }
 
-    single {
+    viewModel {
         SearchViewModel(get(), get())
     }
 
-    single {
-        CountryViewModel(get())
+    viewModel {
+        CountryViewModel(get(), get())
     }
 
-    single {
-        RegionViewModel(get())
+    viewModel {
+        RegionViewModel(get(), get())
+    }
+
+    viewModel {
+        SimilarViewModel(get())
+    }
+
+    viewModel {
+        FilterViewModel(get())
     }
 }
