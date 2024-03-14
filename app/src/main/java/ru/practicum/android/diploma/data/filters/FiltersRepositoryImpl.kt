@@ -31,13 +31,19 @@ class FiltersRepositoryImpl(
     }
 
     override fun getFilters(): Filter {
+        val prefsCountry = prefs.getString(KEY_COUNTRY, null)
+        val prefsRegion = prefs.getString(KEY_REGION, null)
+        val prefsIndustries = prefs.getString(KEY_INDUSTRIES, null)
+        val prefsSalaryTextShared = prefs.getString(KEY_SALARY_TEXT, null)
+        val prefsSalaryBooleanShared = prefs.getString(KEY_SALARY_BOOLEAN, null)
+
         val gson = Gson()
 
-        val country = gson.fromJson(prefs.getString("country", null), CountryShared::class.java)
-        val region = gson.fromJson(prefs.getString("region", null), RegionShared::class.java)
-        val industry = gson.fromJson(prefs.getString("industries", null), IndustriesShared::class.java)
-        val salary = gson.fromJson(prefs.getString("salary_text", "0"), SalaryTextShared::class.java)
-        val onlySalary = gson.fromJson(prefs.getString("salary_boolean", null), SalaryBooleanShared::class.java)
+        val country = gson.fromJson(prefsCountry, CountryShared::class.java)
+        val region = gson.fromJson(prefsRegion, RegionShared::class.java)
+        val industry = gson.fromJson(prefsIndustries, IndustriesShared::class.java)
+        val salary = gson.fromJson(prefsSalaryTextShared, SalaryTextShared::class.java)
+        val onlySalary = gson.fromJson(prefsSalaryBooleanShared, SalaryBooleanShared::class.java)
 
         return Filter(
             country = country?.countryId, region = region?.regionId,
