@@ -123,5 +123,4 @@ class RetrofitNetworkClient(
         }
         return false
     }
-
 }

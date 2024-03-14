@@ -48,6 +48,5 @@ class DetailViewHolder(
         chooserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(chooserIntent)
     }
-
 }
 

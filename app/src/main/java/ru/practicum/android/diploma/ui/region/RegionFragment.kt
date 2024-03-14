@@ -3,13 +3,18 @@ package ru.practicum.android.diploma.ui.region
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.data.converters.AreaConverter.mapToCountry
@@ -22,8 +27,6 @@ class RegionFragment : Fragment() {
     private val viewModel by viewModel<RegionViewModel>()
     private var _binding: FragmentRegionBinding? = null
     private val binding get() = _binding!!
-
-    private var regionId: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRegionBinding.inflate(inflater, container, false)
@@ -65,6 +68,7 @@ class RegionFragment : Fragment() {
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
 
@@ -75,6 +79,7 @@ class RegionFragment : Fragment() {
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
 
@@ -86,28 +91,49 @@ class RegionFragment : Fragment() {
                 } else {
                     val newDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
                     binding.edit.setCompoundDrawablesWithIntrinsicBounds(null, null, newDrawable, null)
+                    binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
                 }
             }
         }
 
         binding.edit.addTextChangedListener(textWatcher)
 
-        viewModel.observeState().observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is RegionState.Content -> {
-                    showContent()
-                    adapter.countryList.clear()
-                    adapter.filteredList.clear()
-                    adapter.countryList.addAll(state.regionId.areas.map { it.mapToCountry() }.sortedBy { it.name })
-                    adapter.filteredList.addAll(state.regionId.areas.map { it.mapToCountry() }.sortedBy { it.name })
-                    adapter.notifyDataSetChanged()
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.observeState().observe(viewLifecycleOwner) { state ->
+                    Log.d("StateError", "Состояние региона = $state")
+                    when (state) {
+                        is RegionState.Content -> {
+                            showContent()
+                            adapter.countryList.clear()
+                            adapter.filteredList.clear()
+                            adapter.countryList.addAll(state.regionId.areas.map { it.mapToCountry() }
+                                .sortedBy { it.name })
+                            adapter.filteredList.addAll(state.regionId.areas.map { it.mapToCountry() }
+                                .sortedBy { it.name })
 
-                is RegionState.Empty -> ""
-                is RegionState.Error -> ""
-                is RegionState.Loading -> showLoading()
+                            if (adapter.countryList.size == 0) {
+                                binding.placeholderError.visibility = View.VISIBLE
+                                binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+                                binding.tvplaceholder.text = "Это пиздос"
+                                binding.flrecyclerContainer.visibility = View.GONE
+                            }
+
+                            adapter.notifyDataSetChanged()
+                        }
+
+                        is RegionState.Empty -> showEmpty(getString(state.message))
+                        is RegionState.Error -> showError(getString(state.errorMessage))
+                        is RegionState.Loading -> showLoading()
+                    }
+                }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
     }
 
     override fun onDestroyView() {
@@ -116,12 +142,31 @@ class RegionFragment : Fragment() {
     }
 
     private fun showContent() {
-        binding.regionRecycler.visibility = View.VISIBLE
+        binding.flrecyclerContainer.visibility = View.VISIBLE
         binding.regionProgressBar.visibility = View.GONE
     }
 
     private fun showLoading() {
-        binding.regionRecycler.visibility = View.GONE
+        binding.flrecyclerContainer.visibility = View.GONE
         binding.regionProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun showError(errorMessage: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
+        binding.tvplaceholder.text = errorMessage
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty(message: String) {
+        binding.placeholderError.visibility = View.VISIBLE
+        binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
+        binding.tvplaceholder.text = message
+        binding.flrecyclerContainer.visibility = View.GONE
+    }
+
+    companion object {
+        const val REGION_TEXT = "region_text"
+        const val REGION_ID = "region_id"
     }
 }

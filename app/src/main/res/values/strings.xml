@@ -46,6 +46,9 @@
     <string name="search_heading">Поиск вакансий</string>
     <string name="expected_salary">Ожидаемая зарплата</string>
     <string name="enter_industry">Введите отрасль</string>
+    <string name="nothing_found">Не удалось получить \nсписок</string>
+    <string name="no_such_industry">Такой отрасли нет</string>
+    <string name="no_such_region">Такого региона нет</string>
     <string name="server_error_search">Ошибка сервера</string>
 
 </resources>

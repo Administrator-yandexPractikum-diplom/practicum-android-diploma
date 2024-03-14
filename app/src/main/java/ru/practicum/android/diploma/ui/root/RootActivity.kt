@@ -35,6 +35,7 @@ class RootActivity : AppCompatActivity() {
                     binding.bottomNavigationView.visibility = View.GONE
                     binding.horizontalLine.visibility = View.GONE
                 }
+
                 else -> {
                     binding.bottomNavigationView.visibility = View.VISIBLE
                     binding.horizontalLine.visibility = View.VISIBLE
