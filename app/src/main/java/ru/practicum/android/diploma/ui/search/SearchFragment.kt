@@ -93,8 +93,11 @@ class SearchFragment : Fragment() {
         }
 
         viewModel.isFilterOn.observe(viewLifecycleOwner, Observer {
-            binding.filterImageView.visibleOrGone(!it)
-            binding.filterOnImageView.visibleOrGone(it)
+            if (it) {
+                binding.filterImageView.setBackgroundResource(R.color.YP_Blue)
+            } else {
+                binding.filterImageView.setBackgroundResource(R.color.white_black)
+            }
         })
 
 

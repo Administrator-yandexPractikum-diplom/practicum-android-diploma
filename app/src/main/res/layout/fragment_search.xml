@@ -38,6 +38,7 @@
                 android:layout_margin="@dimen/margin_12"
                 android:src="@drawable/ic_filter"
                 android:visibility="visible"/>
+
             <ImageView
                 android:id="@+id/filterOnImageView"
                 android:layout_width="@dimen/margin_24"
