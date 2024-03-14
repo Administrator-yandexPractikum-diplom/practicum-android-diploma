@@ -72,23 +72,27 @@ class SearchViewModel(
                 params["page"] = "1"
 
                 filter.salary?.let {
-                    params["salary"] = filter.salary.toString()
+                    if (it.isNotEmpty()) {
+                        params["salary"] = it
+                    } else {
+                        params["salary"] = "1"
+                    }
                 }
 
                 filter.onlyWithSalary?.let {
-                    params["only_with_salary"] = filter.onlyWithSalary.toString()
+                    params["only_with_salary"] = it.toString()
                 }
 
                 filter.country?.let {
-                    params["area"] = filter.country.toString()
+                    params["area"] = it
                 }
 
                 filter.region?.let {
-                    params["area"] = filter.region.toString()
+                    params["area"] = it
                 }
 
                 filter.industry?.let {
-                    params["industry"] = filter.industry.toString()
+                    params["industry"] = it
                 }
 
                 when (val result = repository.vacanciesPagination(params)) {
@@ -111,6 +115,7 @@ class SearchViewModel(
                     is Resource.Error -> {
                         state.update { it.copy(state = SearchState.Error) }
                     }
+
                     is Resource.ServerError -> {
                         state.update { it.copy(state = SearchState.ServerError) }
                     }

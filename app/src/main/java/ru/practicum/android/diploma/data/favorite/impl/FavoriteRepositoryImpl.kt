@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.flow
 import ru.practicum.android.diploma.data.converters.VacancyDetailDbConverter.mapToVacancyDetail
 import ru.practicum.android.diploma.data.converters.VacancyDetailDbConverter.mapToVacancyDetailEntity
 import ru.practicum.android.diploma.data.db.AppDatabase
-import ru.practicum.android.diploma.domain.favorite.FavoriteRepository
 import ru.practicum.android.diploma.domain.detail.VacancyDetail
+import ru.practicum.android.diploma.domain.favorite.FavoriteRepository
 
 class FavoriteRepositoryImpl(
     val appDatabase: AppDatabase

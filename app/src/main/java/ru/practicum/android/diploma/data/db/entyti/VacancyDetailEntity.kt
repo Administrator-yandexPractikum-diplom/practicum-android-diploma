@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-
 @Entity(tableName = "vacancy_table")
 data class VacancyDetailEntity(
     @PrimaryKey @ColumnInfo(name = "id")

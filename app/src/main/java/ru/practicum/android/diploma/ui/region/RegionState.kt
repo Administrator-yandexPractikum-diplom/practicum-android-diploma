@@ -5,7 +5,9 @@ import ru.practicum.android.diploma.domain.country.Country
 sealed interface RegionState {
     data object Loading : RegionState
 
-    data object Empty : RegionState
+    data class Empty(
+        val message: Int
+    ) : RegionState
 
     data class Content(
         val regionId: Country
