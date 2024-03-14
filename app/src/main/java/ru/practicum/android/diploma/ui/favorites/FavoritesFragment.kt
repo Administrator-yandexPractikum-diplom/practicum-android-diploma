@@ -1,14 +1,17 @@
 package ru.practicum.android.diploma.ui.favorites
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import ru.practicum.android.diploma.data.vacancydetail.dto.responseunits.VacancyDetailDtoResponse
+import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.databinding.FragmentFavoritesBinding
+import ru.practicum.android.diploma.domain.models.detail.VacancyDetail
 import ru.practicum.android.diploma.presentation.favorite.FavoriteAdapter
 import ru.practicum.android.diploma.presentation.favorite.FavoriteVacancyState
 import ru.practicum.android.diploma.ui.favorites.viewmodel.FavoriteViewModel
@@ -36,11 +39,23 @@ class FavoritesFragment : Fragment() {
         binding.favoriteVacancyRecycler.adapter = adapter
         binding.favoriteVacancyRecycler.layoutManager = LinearLayoutManager(requireContext())
 
+        adapter!!.itemClickListener = { _, vacancy ->
+            findNavController().navigate(
+                R.id.action_favoritesFragment_to_vacanciesFragment,
+                bundleOf("vacancy_id" to vacancy.id)
+            )
+        }
+
         viewModel.fillData()
 
         viewModel.vacancyState().observe(viewLifecycleOwner) {
             render(it)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun render(state: FavoriteVacancyState) {
@@ -73,23 +88,14 @@ class FavoritesFragment : Fragment() {
         binding.favoriteVacancyProgressBar.visibility = View.GONE
     }
 
-    private fun showContent(vacancy: List<VacancyDetailDtoResponse>) {
+    private fun showContent(vacancy: List<VacancyDetail>) {
         binding.favoriteVacancyRecycler.visibility = View.VISIBLE
         binding.favoriteEmptyList.visibility = View.GONE
         binding.favoriteNothingFound.visibility = View.GONE
         binding.favoriteVacancyProgressBar.visibility = View.GONE
 
-        adapter?.vacancy?.clear()
-        adapter?.vacancy?.addAll(vacancy)
+        adapter?.vacancyList?.clear()
+        adapter?.vacancyList?.addAll(vacancy)
         adapter?.notifyDataSetChanged()
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoritesFragment().apply {
-                arguments = Bundle().apply {
-                }
-            }
     }
 }

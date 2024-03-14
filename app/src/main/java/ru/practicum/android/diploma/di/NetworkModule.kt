@@ -3,13 +3,12 @@ package ru.practicum.android.diploma.di
 import androidx.room.Room
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.practicum.android.diploma.ApiEndpoints
-import ru.practicum.android.diploma.app.App
+import ru.practicum.android.diploma.BuildConfig
 import ru.practicum.android.diploma.data.NetworkClient
 import ru.practicum.android.diploma.data.db.AppDatabase
 import ru.practicum.android.diploma.data.network.JobVacancySearchApi
@@ -21,9 +20,19 @@ val networkModule = module {
         OkHttpClient
             .Builder()
             .addInterceptor(
-                HttpLoggingInterceptor()
-                    .apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
+                HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
             )
+            .addInterceptor { chain ->
+                chain.run {
+                    proceed(
+                        request()
+                            .newBuilder()
+                            .addHeader("Authorization", "Bearer ${BuildConfig.HH_ACCESS_TOKEN}")
+                            .addHeader("HH-User-Agent", "practicum-android-diploma (makss.impeks@gmail.com)")
+                            .build()
+                    )
+                }
+            }
             .build()
     }
 
@@ -47,6 +56,7 @@ val networkModule = module {
 
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "get_vacancy_db")
+            .fallbackToDestructiveMigration()
             .build()
     }
 }
