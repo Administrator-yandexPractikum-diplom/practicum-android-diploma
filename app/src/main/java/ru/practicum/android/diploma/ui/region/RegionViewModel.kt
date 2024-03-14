@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.ui.region
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,7 +41,7 @@ class RegionViewModel(
     fun loadRegion(regionId: String) {
         if (regionId.isEmpty()) {
             // Выбрать значение по умолчанию или выполнить другие действия
-            renderState(RegionState.Empty)
+            renderState(RegionState.Empty(200))
             return
         }
 
@@ -54,21 +55,38 @@ class RegionViewModel(
     }
 
     private fun processResult(industriesDetail: Country?, errorMessage: Int?) {
+        Log.d("StateError", "Какое число получаем ошибка = $errorMessage")
         when {
             errorMessage != null -> {
-                renderState(
-                    RegionState.Error(
-                        errorMessage = R.string.nothing_found
+                if (errorMessage == -1) {
+                    renderState(
+                        RegionState.Error(
+                            errorMessage = R.string.nothing_found
+                        )
                     )
-                )
+                } else {
+                    renderState(
+                        RegionState.Empty(
+                            message = R.string.no_such_region
+                        )
+                    )
+                }
             }
 
             else -> {
-                renderState(
-                    RegionState.Content(
-                        regionId = industriesDetail!!
+                if (industriesDetail != null) {
+                    renderState(
+                        RegionState.Content(
+                            regionId = industriesDetail!!
+                        )
                     )
-                )
+                } else {
+                    renderState(
+                        RegionState.Empty(
+                            message = R.string.no_such_region
+                        )
+                    )
+                }
             }
         }
     }
