@@ -3,7 +3,6 @@ package ru.practicum.android.diploma.ui.region
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -126,14 +125,14 @@ class RegionFragment : Fragment() {
         binding.regionProgressBar.visibility = View.VISIBLE
     }
 
-    private fun showError(errorMessage: String){
+    private fun showError(errorMessage: String) {
         binding.placeholderError.visibility = View.VISIBLE
         binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
         binding.tvplaceholder.text = errorMessage
         binding.flrecyclerContainer.visibility = View.GONE
     }
 
-    private fun showEmpty(message: String){
+    private fun showEmpty(message: String) {
         binding.placeholderError.visibility = View.VISIBLE
         binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
         binding.tvplaceholder.text = message

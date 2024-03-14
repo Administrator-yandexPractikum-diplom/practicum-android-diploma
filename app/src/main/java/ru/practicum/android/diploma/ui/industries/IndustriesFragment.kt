@@ -18,8 +18,6 @@ import ru.practicum.android.diploma.domain.filter.datashared.IndustriesShared
 import ru.practicum.android.diploma.domain.industries.ParentIndustriesAllDeal
 import ru.practicum.android.diploma.presentation.industries.IndustriesAdapter
 import ru.practicum.android.diploma.presentation.industries.IndustriesState
-import ru.practicum.android.diploma.presentation.industries.IndustriesViewModel
-import ru.practicum.android.diploma.util.extensions.visibleOrGone
 
 class IndustriesFragment : Fragment() {
 
@@ -64,6 +62,7 @@ class IndustriesFragment : Fragment() {
                     adapter.filteredList.addAll(state.industries)
                     adapter.notifyDataSetChanged()
                 }
+
                 is IndustriesState.Error -> showError(getString(state.errorMessage))
                 is IndustriesState.Empty -> showEmpty(getString(state.message))
             }
@@ -119,13 +118,13 @@ class IndustriesFragment : Fragment() {
         }
     }
 
-    private fun showContent(){
+    private fun showContent() {
         Log.e("industry", "showContent")
         binding.placeholderError.visibility = View.GONE
         binding.clrecyclerContainer.visibility = View.VISIBLE
     }
 
-    private fun showError(errorMessage: String){
+    private fun showError(errorMessage: String) {
         Log.e("industry", "showError")
         binding.placeholderError.visibility = View.VISIBLE
         binding.ivplaceholder.setImageResource(R.drawable.state_image_error_get_list)
@@ -133,7 +132,7 @@ class IndustriesFragment : Fragment() {
         binding.clrecyclerContainer.visibility = View.GONE
     }
 
-    private fun showEmpty(message: String){
+    private fun showEmpty(message: String) {
         Log.e("industry", "showEmpty")
         binding.placeholderError.visibility = View.VISIBLE
         binding.ivplaceholder.setImageResource(R.drawable.state_image_nothing_found)
