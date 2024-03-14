@@ -68,8 +68,9 @@ class SearchViewModel(
             viewModelScope.launch {
                 state.update { it.copy(state = SearchState.Loading) }
                 val filter = filtersRepository.getFilters()
-                _isFilterOn.value = (filter.salary != "1" || filter.onlyWithSalary == true || !filter.country.isNullOrBlank()
-                    || !filter.region.isNullOrBlank() || !filter.industry.isNullOrBlank())
+                _isFilterOn.value =
+                    (filter.salary != "1" || filter.onlyWithSalary == true || !filter.country.isNullOrBlank()
+                        || !filter.region.isNullOrBlank() || !filter.industry.isNullOrBlank())
 
                 val params = mutableMapOf("text" to query)
                 params["page"] = "1"
