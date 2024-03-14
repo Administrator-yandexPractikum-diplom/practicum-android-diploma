@@ -38,6 +38,17 @@ class FiltersFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             binding.clearIcon.visibility = View.VISIBLE
+
+            if (s?.isNotEmpty() == true) {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_white))
+                binding.clearIcon.visibility = View.VISIBLE
+                binding.filterFunctionButton.visibility = View.VISIBLE
+            } else {
+                binding.expectedSalary.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.edit.setTextColor(ContextCompat.getColor(requireContext(), R.color.YP_Text_Gray))
+                binding.clearIcon.visibility = View.GONE
+            }
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -149,7 +160,7 @@ class FiltersFragment : Fragment() {
         binding.edit.addTextChangedListener(textWatcher)
 
         binding.clearIcon.setOnClickListener {
-            binding.edit.setText("1")
+            binding.edit.setText("")
         }
 
         binding.vacancyToolbar.setOnClickListener {
