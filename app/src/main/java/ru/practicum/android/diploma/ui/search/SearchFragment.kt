@@ -11,11 +11,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
@@ -60,8 +60,6 @@ class SearchFragment : Fragment() {
         }
 
         binding.searchEditText.onTextChange {
-            //binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
-            //binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_clear)
             binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0)
             binding.clearButton.isEnabled = true
             binding.clearButton.visibleOrGone(binding.clearButton.isEnabled)
@@ -93,6 +91,11 @@ class SearchFragment : Fragment() {
             findNavController()
                 .navigate(R.id.action_mainFragment_to_filtersFragment)
         }
+
+        viewModel.isFilterOn.observe(viewLifecycleOwner, Observer {
+            binding.filterImageView.visibleOrGone(!it)
+            binding.filterOnImageView.visibleOrGone(it)
+        })
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -150,8 +153,6 @@ class SearchFragment : Fragment() {
         super.onStart()
 
         if (binding.searchEditText.text.toString().isNotEmpty()) {
-            //binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CUSTOM
-            //binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_clear)
             binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0)
             binding.clearButton.isEnabled = true
         }
@@ -164,8 +165,6 @@ class SearchFragment : Fragment() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun clearSearchText() {
         binding.searchEditText.setText("")
-        //binding.searchContainer.endIconMode = TextInputLayout.END_ICON_CUSTOM
-        //binding.searchContainer.endIconDrawable = requireContext().getDrawable(R.drawable.ic_search)
         binding.clearButton.isEnabled = false
         binding.tvRvHeader.visibility = View.GONE
         binding.searchEditText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_search, 0)
