@@ -11,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -90,6 +91,12 @@ class SearchFragment : Fragment() {
             findNavController()
                 .navigate(R.id.action_mainFragment_to_filtersFragment)
         }
+
+        viewModel.isFilterOn.observe(viewLifecycleOwner, Observer {
+            binding.filterImageView.visibleOrGone(!it)
+            binding.filterOnImageView.visibleOrGone(it)
+        })
+
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

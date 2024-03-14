@@ -1,5 +1,6 @@
 package ru.practicum.android.diploma.ui.search.viewmodel
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -34,6 +35,9 @@ class SearchViewModel(
 
     private var query: String = ""
 
+    private var _isFilterOn : MutableLiveData<Boolean> = MutableLiveData()
+    var isFilterOn = _isFilterOn
+
     private fun subscribeVacanciesPagination(params: Map<String, String>) {
         flow = Pager(PagingConfig(pageSize = 20)) {
             VacanciesPagingSource(repository, params, null, null)
@@ -59,6 +63,10 @@ class SearchViewModel(
             viewModelScope.launch {
                 state.update { it.copy(state = SearchState.Loading) }
                 val filter = filtersRepository.getFilters()
+                if(filter.salary != "1" || filter.onlyWithSalary == true || !filter.country.isNullOrBlank()
+                    || !filter.region.isNullOrBlank() || !filter.industry.isNullOrBlank()){
+                    _isFilterOn.value = true
+                }
 
                 val params = mutableMapOf("text" to query)
                 params["page"] = "1"
